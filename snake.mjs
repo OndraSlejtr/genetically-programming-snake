@@ -1,13 +1,7 @@
-// Max including 
-function getRand(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-};
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-};
-
-const manualControl = false;
+// import { Node } from './tree.js';
+import {
+    getRand
+} from './utils.mjs';
 
 const LEFT = {
     'x': -1,
@@ -30,7 +24,7 @@ const directions = [UP, RIGHT, DOWN, LEFT];
 const FORWARD = 0;
 const LEFTTURN = 1;
 const RIGHTTURN = 2;
-const turnOptions = [FORWARD, LEFTTURN, RIGHTTURN];
+export const turnOptions = [FORWARD, LEFTTURN, RIGHTTURN];
 
 function getTurnOption(turnId) {
     return turnOptions[turnId];
@@ -40,15 +34,20 @@ function getDirection(directionId) {
     return directions[directionId];
 }
 
-class Snake {
+export class Snake {
     constructor(game) {
         this.game = game;
+        this.decisionFunction = undefined;
         this.pieces = [];
         this.pieces.push(this.game.getEmptyTile());
         this.facing = getRand(3);
         this.eating = false;
 
         console.log('Snake created at', this.pieces[0].x, this.pieces[0].y);
+    }
+
+    setDecisionFunction(func) {
+        this.decisionFunction = func;
     }
 
     getHead() {
@@ -60,6 +59,9 @@ class Snake {
     }
 
     makeDecision() {
+        if (this.decisionFunction !== undefined) {
+            return this.decisionFunction(this);
+        }
         return getRand(turnOptions.length);
     }
 
@@ -84,7 +86,7 @@ class Snake {
     }
 
     move() {
-        if (!manualControl) {
+        if (!this.game.manualControl) {
             this.considerTurn();
         }
         const newPiece = this.pieces[0].plus(getDirection([this.facing]));
@@ -97,9 +99,9 @@ class Snake {
             this.eating = false;
         }
 
-        let str = '';
-        this.pieces.forEach(piece => str += piece.x + ":" + piece.y + "\n");
-        console.log(str);
+        // let str = '';
+        // this.pieces.forEach(piece => str += piece.x + ":" + piece.y + "\n");
+        // console.log(str);
     }
 }
 
@@ -113,7 +115,37 @@ class Coord {
     }
 }
 
-class Game {
+export class Game {
+
+    constructor(visible, manualControl, maxTurns = 250, width = 50, height = 50, foodCount = 500) {
+
+        this.manualControl = manualControl;
+        this.finished = false;
+        this.maxTurns = maxTurns;
+        this.currentTurn = 0;
+
+        // this.width = getRand(50, 5);
+        // this.height = getRand(50, 5);
+        this.width = width;
+        this.height = height;
+        this.visible = visible;
+
+        this.foodList = [];
+
+        foodCount = foodCount <= width * height ? foodCount : width * height - 1;
+        Array(foodCount).fill().forEach(() => this.addFood());
+
+        //this.foodList.push(this.getEmptyTile());
+        console.log('Food created at', this.foodList[0].x, this.foodList[0].y);
+
+        this.snake = new Snake(this);
+
+        if (this.visible === true) {
+            this.drawSpeed = 1000;
+            this.createCanvas();
+        }
+    }
+
     createCanvas() {
         this.scale = 20;
 
@@ -129,31 +161,6 @@ class Game {
 
         this.ctx = this.canvas.getContext('2d');
     }
-
-    constructor(visible) {
-
-        this.finished = false;
-        this.maxTurns = 500;
-        this.currentTurn = 0;
-
-        // this.width = getRand(20);
-        // this.height = getRand(20);
-        this.width = 20;
-        this.height = 20;
-        this.visible = visible;
-
-        this.foodList = [];
-        this.foodList.push(this.getEmptyTile());
-        console.log('Food created at', this.foodList[0].x, this.foodList[0].y);
-
-        this.snake = new Snake(this);
-
-        if (this.visible === true) {
-            this.drawSpeed = 300;
-            this.createCanvas();
-        }
-    }
-
 
     gameFinished() {
         return (this.maxTurns <= this.currentTurn || this.finished);
@@ -171,7 +178,8 @@ class Game {
                 }
             }).bind(this), this.drawSpeed);
         } else {
-            while (!this.gameFinished) {
+            
+            while (!this.gameFinished()) {
                 this.gameloop();
             }
         }
@@ -186,8 +194,14 @@ class Game {
                 this.scale, this.scale);
         });
 
+        this.ctx.fillStyle = "#FF0000";
+        this.snake.pieces.slice(0,1).forEach(piece => {
+            this.ctx.fillRect((piece.x + 0) * this.scale, (piece.y + 0) * this.scale,
+                this.scale, this.scale);
+        });
+
         this.ctx.fillStyle = "#000000";
-        this.snake.pieces.forEach(piece => {
+        this.snake.pieces.slice(1).forEach(piece => {
             this.ctx.fillRect((piece.x + 0) * this.scale, (piece.y + 0) * this.scale,
                 this.scale, this.scale);
         });
@@ -244,16 +258,15 @@ class Game {
     checkEatingConditions() {
 
         const snakeHead = this.snake.getHead();
-        if (snakeHead.x === this.foodList[0].x && snakeHead.y === this.foodList[0].y) {
+        const index = this.foodList.findIndex(food => food.x === snakeHead.x && food.y === snakeHead.y);        
+
+        if (index !== -1) {
             this.snake.eat();
-            this.removeFood();
+            this.foodList.splice(index, 1);
             this.addFood();
         }
     }
 
-    removeFood() {
-        this.foodList.pop();
-    }
 
     addFood() {
         const emptyTile = this.getEmptyTile();
@@ -266,38 +279,9 @@ class Game {
         if (this.visible) {
             this.draw();
         }
-        this.checkCollision();
 
         this.snake.move();
-        this.currentTurn++;
+        this.currentTurn++;        
+        this.checkCollision();
     }
 }
-
-// Driver
-console.log('starting')
-$(document).ready(() => {
-
-    var game = new Game(true);
-    game.start();
-
-    if (manualControl) {
-
-        document.onkeydown = checkKey;
-
-        function checkKey(e) {
-
-            e = e || window.event;
-
-            if (e.keyCode == '38') {
-                game.snake.facing = 2;
-            } else if (e.keyCode == '40') {
-                game.snake.facing = 0;
-            } else if (e.keyCode == '37') {
-                game.snake.facing = 3;
-            } else if (e.keyCode == '39') {
-                game.snake.facing = 1;
-            }
-
-        }
-    }
-});
