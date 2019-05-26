@@ -1,0 +1,19 @@
+{
+  "name": "snake",
+  "version": "1.0.0",
+  "description": "Genetic programming with Snake.",
+  "main": "training.mjs",
+  "module": "main.js",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "lodash": "^4.17.11",
+    "lodash-es": "^4.17.11",
+    "mjs-require": "^0.1.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
