@@ -168,7 +168,7 @@ export class Node {
 
         // console.log(coef, coefIncrease);
         
-        const mutationTypes = [this.subtreeMutation, this.pointMutation, this.shrinkMutation /*, this.permutationMutation*/]; 
+        const mutationTypes = [this.subtreeMutation, this.pointMutation, this.shrinkMutation , this.permutationMutation]; 
 
         if (this.depth >= 2) {
             // skip permutationMutation for shallow trees
