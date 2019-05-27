@@ -20,22 +20,8 @@ var _ = require('lodash');
 
 const options = terminals.concat(nonTerminals);
 
-// function decide(decisionTree) {
-
-//     // console.log(JSON.stringify(decisionTree, maskInfo));
-
-//     return function (snake) {
-//         if (decisionTree.value.run === undefined) {
-//             return decisionTree.value;
-//         } else {
-//             return decide(snake, decisionTree.children[decisionTree.value.run(snake)]);
-//         }
-//     }
-// }
-
-function fitnessEval(decisionTree) {
+function fitnessEval(decisionTree, repeats = 2) {
     var total = 0;
-    var repeats = 2;
     for (var i = 0; i < repeats; i++) {
         let game = new Game({visible: false, manualControl: false, foodCount: 1});
         game.snake.setDecisionFunction(decisionTree);
@@ -69,9 +55,9 @@ class Population {
         }
         this._sortPops();
     }
-    _measureFitness() {        
+    _measureFitness(repeats = 2) {        
         for (let i = 0; i < this.size; i++) {
-            this.pops[i].fitness = fitnessEval(this.pops[i]);
+            this.pops[i].fitness = fitnessEval(this.pops[i], repeats);
         }
     }
 
@@ -123,7 +109,7 @@ class Population {
         this.pops = elite;
         this._measureFitness();
         this._sortPops();
-        console.log(this.pops.map(pop => pop.fitness));
+        // console.log(this.pops.map(pop => pop.fitness));
     }
 
     get maxFitness() {
@@ -132,11 +118,19 @@ class Population {
     get topPop() {
         return this.pops[0];
     }
+
+    finalSelection() {
+        const eliteCutoff = Math.floor(this.size * 0.05);
+        this.pop = _.cloneDeep(this.pops.slice(0, eliteCutoff));
+        this.size = eliteCutoff;
+        this._measureFitness(100);
+        this._sortPops();
+    }
 }
 
-const generations = 100;
+const generations = 2000;
 const pop = new Population({
-    size: 100,
+    size: 1000,
     crossover: 0.8,
     elitism: 0.2,
     mutation: 0.3
@@ -153,7 +147,15 @@ var maxFitness = 0;
     pop.evolve();
 });
 
+pop.finalSelection();
+
 console.log('\n==============================\nEvolution over\n')
-console.log('Maximum fitness achieved: ', maxFitness);
-// console.log(JSON.stringify(pop.topPop, maskInfo));
-// console.log(JSON.stringify(generateRandomTree(10), maskInfo));
+console.log('Maximum spot fitness achieved: ', maxFitness);
+console.log('Final normalized fitness achieved: ', pop.topPop.fitness);
+
+var fs = require("fs");
+
+fs.writeFile("result_function.json", JSON.stringify(pop.topPop, maskInfo), (err) => {
+  if (err) console.log(err);
+  console.log("Successfully written resulting function into file.");
+});
