@@ -2,17 +2,11 @@ import {
     generateRandomTree
 } from './tree.mjs';
 import {
-    terminals,
-    nonTerminals
-} from './genetics.mjs';
-import {
-    getRandomElement,
-    coinflip,
-    maskInfo
+    maskInfo,
+    log
 } from './utils.mjs';
 import {
     Game,
-    Snake
 } from './snake.mjs';
 
 const _ = require('lodash');
@@ -56,7 +50,12 @@ class Population {
         this._sortPops();
     }
     _measureFitness(repeats = 2) {
+        
+
         for (let i = 0; i < this.size; i++) {
+            if(this.pops[i] === undefined) {
+                console.log('No more pops at index', i);
+            }
             this.pops[i].fitness = fitnessEval(this.pops[i], repeats);
         }
     }
@@ -82,8 +81,8 @@ class Population {
 
     evolve() {
         const eliteCutoff = Math.floor(this.size * this.elitism);
-ge        let elite = _.cloneDeep(this.pops.slice(0, eliteCutoff));
-ge
+        let elite = _.cloneDeep(this.pops.slice(0, eliteCutoff));
+
         while (elite.length < this.size) {
             if (Math.random() <= this.crossover) {
                 const [parent1, parent2] = this.selectParents();
@@ -146,7 +145,7 @@ console.log('Final normalized fitness achieved: ', pop.topPop.fitness);
 
 const fs = require("fs");
 
-fs.writeFile("result_function.json", JSON.stringify(pop.topPop, maskInfo), (err) => {
+fs.writeFile("outputs/result_function.json", JSON.stringify(pop.topPop, maskInfo), (err) => {
     if (err) console.log(err);
     console.log("Successfully written resulting function into file.");
 });

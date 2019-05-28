@@ -1,6 +1,7 @@
 // import { Node } from './tree.js';
 import {
-    getRand
+    getRand,
+    log
 } from './utils.mjs';
 import {
     movingRight,
@@ -82,7 +83,7 @@ export class Snake {
         this.facing = getRand(3);
         this.eating = false;
 
-        //console.debug('Snake created at', this.pieces[0].x, this.pieces[0].y);
+        log('Snake created at', this.pieces[0].x, this.pieces[0].y);
     }
 
     setDecisionFunction(func) {
@@ -117,13 +118,12 @@ export class Snake {
         const direction = this.makeDecision();
 
         if (direction === FORWARD) {
-            // do nothing
-            // log('Continuing forward');
+            log('Continuing forward');
         } else if (direction === LEFTTURN) {
-            // log('Continuing to the left');
+            log('Continuing to the left');
             this.facing = changeDirectionToLeft(this.facing)
         } else if (direction === RIGHTTURN) {
-            // log('Continuing to the right');
+            log('Continuing to the right');
             this.facing = changeDirectionToRight(this.facing)
         }
     }
@@ -133,7 +133,7 @@ export class Snake {
             this.considerTurn();
         }
         const newPiece = this.pieces[0].plus(getDirection([this.facing]));
-        //console.debug('Moving to:', newPiece.x, newPiece.y);
+        log('Moving to:', newPiece.x, newPiece.y);
         this.pieces.unshift(newPiece);
 
         if (!this.eating) {
@@ -198,7 +198,7 @@ export class Game {
         this.canvas.attr('width', this.width * this.scale);
         this.canvas.attr('height', this.height * this.scale);
         this.canvas.attr('style', 'border:1px solid #000000;');
-        //console.debug('Canvas created with width: ' + this.width, 'height:', this.height);
+        log('Canvas created with width: ' + this.width, 'height:', this.height);
 
         this.canvas = document.getElementById('jsSnake');
 
@@ -291,12 +291,12 @@ export class Game {
         const snakeHead = this.snake.getHead();
 
         if (this.snake.pieces.slice(1).some(piece => piece.x === snakeHead.x && piece.y === snakeHead.y)) {
-            // console.debug('Snake has crashed into itself after eating ', this.snake.hasEaten(), ' after ', this.currentTurn, 'turns.');
+            log('Snake has crashed into itself after eating ', this.snake.hasEaten(), ' after ', this.currentTurn, 'turns.');
             this.finished = true;
         }
 
         if (this.isWall(snakeHead)) {
-            // console.debug('Snake has crashed into the wall after eating ', this.snake.hasEaten(), ' after ', this.currentTurn, 'turns.');
+            log('Snake has crashed into the wall after eating ', this.snake.hasEaten(), ' after ', this.currentTurn, 'turns.');
             this.finished = true;
         }
     }
@@ -306,7 +306,7 @@ export class Game {
         const index = this.foodList.findIndex(food => food.x === snakeHead.x && food.y === snakeHead.y);
 
         if (index !== -1) {
-            //console.debug("Snake has eaten. YUM");
+            log("Snake has eaten. YUM");
             this.snake.eat();
             this.foodList.splice(index, 1);
             this.addFood();
@@ -316,8 +316,7 @@ export class Game {
 
     addFood() {
         const emptyTile = this.getEmptyTile();
-
-        //console.debug('Food added at', emptyTile.x, emptyTile.y);
+        log('Food added at', emptyTile.x, emptyTile.y);
         this.foodList.push(new Coord(emptyTile.x, emptyTile.y));
     }
 

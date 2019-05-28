@@ -1,3 +1,5 @@
+const DEBUG = false;
+
 export function getRand(max, min) {
     if (min === undefined) {
         return Math.floor(Math.random() * Math.floor(max));
@@ -15,7 +17,7 @@ export function coinflip() {
     return Math.random() <= 0.5;
 }
 
-
+// Retain function names within JSON serialization call
 export function maskInfo(key, value) {
     if (key == "parent") {
         return
@@ -25,4 +27,10 @@ export function maskInfo(key, value) {
         return func.substring("function".length + 1, func.indexOf('('));
     }
     return value;
+}
+
+export function log(text) {
+    if (DEBUG) {
+        console.log(text);
+    }
 }

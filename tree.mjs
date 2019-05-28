@@ -2,7 +2,8 @@ import {
     getRand
 } from "./utils.mjs";
 import {
-    getRandomElement
+    getRandomElement,
+    log
 } from "./utils.mjs";
 import {
     nonTerminals,
@@ -11,7 +12,6 @@ import {
 
 const _ = require('lodash');
 const mutationDepth = 1.5;
-const DEBUG = false;
 
 export function subchildCount(total, node) {
     if (node.childCount === 0) {
@@ -26,11 +26,6 @@ export function subchildCount(total, node) {
     }
 }
 
-function log(text) {
-    if (DEBUG) {
-        console.log(text);
-    }
-}
 
 export function generateRandomTree(depth) {
     if (depth <= 0) {
