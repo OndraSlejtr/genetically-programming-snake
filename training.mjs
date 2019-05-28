@@ -16,13 +16,13 @@ import {
 } from './snake.mjs';
 import { getRand } from './utils.mjs';
 
-var _ = require('lodash');
+const _ = require('lodash');
 
 const options = terminals.concat(nonTerminals);
 
 function fitnessEval(decisionTree, repeats = 2) {
-    var total = 0;
-    for (var i = 0; i < repeats; i++) {
+    let total = 0;
+    for (let i = 0; i < repeats; i++) {
         let game = new Game({visible: false, manualControl: false, foodCount: 1});
         game.snake.setDecisionFunction(decisionTree);
         game.start();
@@ -67,7 +67,7 @@ class Population {
 
     tournamentSelection() {
         let best = this.pops[Math.floor(Math.random()*this.pops.length)];
-        for (var i = 0; i < this.tournamentSize; i++) {
+        for (let i = 0; i < this.tournamentSize; i++) {
             let contender = this.pops[Math.floor(Math.random()*this.pops.length)];
             if (contender.fitness > best.fitness) {
                 best = contender;
@@ -128,15 +128,15 @@ class Population {
     }
 }
 
-const generations = 2000;
+const generations = 100;
 const pop = new Population({
-    size: 1000,
+    size: 100,
     crossover: 0.8,
     elitism: 0.2,
     mutation: 0.3
 });
 
-var maxFitness = 0;
+let maxFitness = 0;
 
 [...Array(generations).keys()].forEach(gen => {
     console.log('Running generation number', gen, 'current gen max fitness ', pop.maxFitness);
@@ -153,7 +153,7 @@ console.log('\n==============================\nEvolution over\n')
 console.log('Maximum spot fitness achieved: ', maxFitness);
 console.log('Final normalized fitness achieved: ', pop.topPop.fitness);
 
-var fs = require("fs");
+const fs = require("fs");
 
 fs.writeFile("result_function.json", JSON.stringify(pop.topPop, maskInfo), (err) => {
   if (err) console.log(err);

@@ -213,7 +213,7 @@ export class Game {
         if (this.visible) {
             this.gameloop();
 
-            var interval = setInterval((() => {
+            const interval = setInterval((() => {
                 this.gameloop();
 
                 if (this.gameFinished()) {
@@ -253,7 +253,7 @@ export class Game {
     isEmptyTile(x, y) {
 
         let foodCheck = this.foodList.filter(food => food.x === x && food.y === y).length === 0;
-        var snakeCheck = true;
+        let snakeCheck = true;
         if (this.snake !== undefined) {
             snakeCheck = this.snake.notLocatedOn(x, y);
         }
@@ -262,9 +262,9 @@ export class Game {
 
     getEmptyTile() {
 
-        var x;
-        var y;
-        var count = 0;
+        let x;
+        let y;
+        let count = 0;
 
         do {
             x = getRand(this.width);
