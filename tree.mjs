@@ -139,7 +139,7 @@ export class Node {
             return this;
         } else {
             const mutationIndex = getRand(this.childCount)
-            this.children[mutationIndex] = this.children[mutationIndex].shrinkMutation(initialCoef + coefIncrease, 1.5 / this.depth);
+            this.children[mutationIndex] = this.children[mutationIndex].shrinkMutation(initialCoef + coefIncrease, mutationDepth / this.depth);
             this.children[mutationIndex].parent = this;
 
             return this;
@@ -151,7 +151,7 @@ export class Node {
             return this;
         } else {
             const mutationIndex = getRand(this.childCount)
-            this.children[mutationIndex] = this.children[mutationIndex].permutationMutation(initialCoef + coefIncrease, 1.5 / this.depth);
+            this.children[mutationIndex] = this.children[mutationIndex].permutationMutation(initialCoef + coefIncrease, mutationDepth/ this.depth);
             return this;
         }
     }
@@ -168,11 +168,49 @@ export class Node {
         }
 
     }
+    getRandomSubtree(initialCoef, coefIncrease) {
+        if (Math.random() <= initialCoef || this.depth <= 2) {
+            this.modified = 'mating-random-subtree';
+            return this;
+        } else {
+            const mutationIndex = getRand(this.childCount);
+            return this.children[mutationIndex].getRandomSubtree(initialCoef + coefIncrease, 0.5 / this.depth); // TODO: Replace probability coef constant
+        }
+    }
+    cutoffRandomSubtree() {
+        const coef = this.depth !== 0 ? 1 / this.depth : 1;
+        const coefIncrease = this.depth !== 0 ? 0.5 / this.depth : 1;
 
+        const cutoff = _.cloneDeep(this.getRandomSubtree(coef, coefIncrease));
+        let remains = cutoff.parent;
+        let cutoff_point = -1;
+        if (remains !== null) {
+            cutoff_point = cutoff.parent.children[0] === cutoff ? 0 : 1;
+            remains.children[cutoff_point] = null;
+        }
+        cutoff.parent = null;
+        
+        return [cutoff, cutoff_point, remains];
+    }
     mate(otherParent) {
-        let child1 = _.cloneDeep(this);
-        let child2 = _.cloneDeep(otherParent);
+        let [cutoff1, cutoff_point1, remains1] = this.cutoffRandomSubtree();
+        let [cutoff2, cutoff_point2, remains2] = otherParent.cutoffRandomSubtree();
+        
+        if (remains1 !== null) { // Check if we didn't cut tree off right at the root
+            remains1.children[cutoff_point1] = cutoff2;
+            cutoff2.parent = remains1;
+        } else {
+            remains1 = cutoff2;
+        }
 
+        if (remains2 !== null) {
+            remains2.children[cutoff_point2] = cutoff1;
+            cutoff1.parent = remains2;
+        } else {
+            remains2 = cutoff1;
+        }
+        const child1 = remains1.getRoot();
+        const child2 = remains2.getRoot();
         return [child1, child2];
     }
 }
