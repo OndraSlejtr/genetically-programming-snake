@@ -14,16 +14,18 @@ import {
     Game,
     Snake
 } from './snake.mjs';
-import { getRand } from './utils.mjs';
 
 const _ = require('lodash');
-
-const options = terminals.concat(nonTerminals);
+const maximumInitialDepth = 10;
 
 function fitnessEval(decisionTree, repeats = 2) {
     let total = 0;
     for (let i = 0; i < repeats; i++) {
-        let game = new Game({visible: false, manualControl: false, foodCount: 1});
+        let game = new Game({
+            visible: false,
+            manualControl: false,
+            foodCount: 1
+        });
         game.snake.setDecisionFunction(decisionTree);
         game.start();
         total += game.snake.hasEaten();
@@ -43,19 +45,17 @@ class Population {
         this.elitism = elitism;
         this.mutation = mutation;
 
-        const maximumInitialDepth = 10;
         this.tournamentSize = 3;
 
         this.pops = [];
         for (let i = 0; i < size; i++) {
-            let tree = generateRandomTree(maximumInitialDepth, 10);
+            let tree = generateRandomTree(maximumInitialDepth);
             tree.fitness = fitnessEval(tree);
-            //console.log(tree);
             this.pops.push(tree);
         }
         this._sortPops();
     }
-    _measureFitness(repeats = 2) {        
+    _measureFitness(repeats = 2) {
         for (let i = 0; i < this.size; i++) {
             this.pops[i].fitness = fitnessEval(this.pops[i], repeats);
         }
@@ -66,9 +66,9 @@ class Population {
     }
 
     tournamentSelection() {
-        let best = this.pops[Math.floor(Math.random()*this.pops.length)];
+        let best = this.pops[Math.floor(Math.random() * this.pops.length)];
         for (let i = 0; i < this.tournamentSize; i++) {
-            let contender = this.pops[Math.floor(Math.random()*this.pops.length)];
+            let contender = this.pops[Math.floor(Math.random() * this.pops.length)];
             if (contender.fitness > best.fitness) {
                 best = contender;
             }
@@ -82,26 +82,23 @@ class Population {
 
     evolve() {
         const eliteCutoff = Math.floor(this.size * this.elitism);
-        let elite = _.cloneDeep(this.pops.slice(0, eliteCutoff));
-
+ge        let elite = _.cloneDeep(this.pops.slice(0, eliteCutoff));
+ge
         while (elite.length < this.size) {
-            if (Math.random() <= this.crossover){
+            if (Math.random() <= this.crossover) {
                 const [parent1, parent2] = this.selectParents();
                 const children = parent1.mate(parent2);
                 children.forEach(child => {
                     if (Math.random() < this.mutation) {
                         elite.push(child.mutate());
-                    }
-                    else {
+                    } else {
                         elite.push(child);
-                    }                    
+                    }
                 })
-            }
-            else {
-                if (Math.random() <= this.mutation){
+            } else {
+                if (Math.random() <= this.mutation) {
                     elite.push(this.pops[elite.length].mutate());
-                }   
-                else {
+                } else {
                     elite.push(this.pops[elite.length]);
                 }
             }
@@ -109,7 +106,7 @@ class Population {
         this.pops = elite;
         this._measureFitness();
         this._sortPops();
-        // console.log(this.pops.map(pop => pop.fitness));
+        log(this.pops.map(pop => pop.fitness));
     }
 
     get maxFitness() {
@@ -128,7 +125,7 @@ class Population {
     }
 }
 
-const generations = 100;
+const generations = 200;
 const pop = new Population({
     size: 100,
     crossover: 0.8,
@@ -136,26 +133,20 @@ const pop = new Population({
     mutation: 0.3
 });
 
-let maxFitness = 0;
 
 [...Array(generations).keys()].forEach(gen => {
     console.log('Running generation number', gen, 'current gen max fitness ', pop.maxFitness);
-    if (pop.maxFitness > maxFitness) {
-        maxFitness = pop.maxFitness;
-        console.log('New top fitness found', maxFitness);
-    }
     pop.evolve();
 });
 
 pop.finalSelection();
 
 console.log('\n==============================\nEvolution over\n')
-console.log('Maximum spot fitness achieved: ', maxFitness);
 console.log('Final normalized fitness achieved: ', pop.topPop.fitness);
 
 const fs = require("fs");
 
 fs.writeFile("result_function.json", JSON.stringify(pop.topPop, maskInfo), (err) => {
-  if (err) console.log(err);
-  console.log("Successfully written resulting function into file.");
+    if (err) console.log(err);
+    console.log("Successfully written resulting function into file.");
 });

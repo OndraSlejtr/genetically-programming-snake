@@ -3,8 +3,6 @@ import {
 } from './snake.mjs';
 
 $(document).ready(() => {
-
-
     const game = new Game({
         visible: true,
         manualControl: true

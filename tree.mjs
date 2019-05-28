@@ -104,9 +104,8 @@ export class Node {
         log(initialCoef, coefIncrease);
 
         if (Math.random() <= initialCoef || this.depth <= 1) {
-            // return generateRandomTree(getRand(10, 2));
             this.modified = 'subtree';
-            return generateRandomTree(getRand(2, 10));
+            return generateRandomTree(getRand(2, 5));
         } else {
             const mutationIndex = getRand(this.childCount);
             this.children[mutationIndex] = this.children[mutationIndex].subtreeMutation(initialCoef + coefIncrease, mutationDepth / this.depth);
@@ -126,8 +125,7 @@ export class Node {
             while (this.children[mutationIndex].value.run === undefined) {
                 mutationIndex = getRand(this.childCount);
             }
-            // this.children[mutationIndex].pointMutation(initialCoef + coefIncrease, mutationDepth / this.depth);
-            this.children[mutationIndex] = this.children[mutationIndex].pointMutation(initialCoef + coefIncrease, mutationDepth/ this.depth);
+            this.children[mutationIndex] = this.children[mutationIndex].pointMutation(initialCoef + coefIncrease, mutationDepth / this.depth);
             this.children[mutationIndex].parent = this;
 
             return this;
@@ -159,16 +157,10 @@ export class Node {
     }
 
     mutate() {
-        // console.log('mutation starting');
-
-        // console.log('depth is', this.depth);
-
         const coef = this.depth !== 0 ? 1 / this.depth : 1;
         const coefIncrease = this.depth !== 0 ? 1.5 / this.depth : 1;
 
-        // console.log(coef, coefIncrease);
-
-        const mutationTypes = [this.subtreeMutation, this.pointMutation, this.shrinkMutation/*, this.permutationMutation*/];
+        const mutationTypes = [this.subtreeMutation, this.pointMutation, this.shrinkMutation /*, this.permutationMutation*/ ];
 
         if (this.depth >= 2) {
             // skip permutationMutation for shallow trees
@@ -177,7 +169,6 @@ export class Node {
 
     }
 
-    //Mating TODO
     mate(otherParent) {
         let child1 = _.cloneDeep(this);
         let child2 = _.cloneDeep(otherParent);

@@ -5,19 +5,11 @@ import {
 } from './snake.mjs';
 import { getDirection } from './snake.mjs';
 
-
 const FORWARD = 0;
 const LEFTTURN = 1;
 const RIGHTTURN = 2;
 const turnOptions = [FORWARD, LEFTTURN, RIGHTTURN];
 
-// Remove when node module imports stop being s**t
-// import {
-//     LEFT,
-//     RIGHT,
-//     UP,
-//     DOWN
-// } from './snake.mjs';
 const LEFT = {
     x: -1,
     y: 0
@@ -34,7 +26,6 @@ const DOWN = {
     x: 0,
     y: -1
 };
-// Stop removing ty
 
 export class Terminal {
     constructor(value) {
@@ -54,7 +45,6 @@ export class NonTerminal {
 // Nonterminal functions should return integer signifying which of its children 
 // were chosen to be evaluated
 // TODO: Allow for nonbinary functions
-
 
 export function dangerRight(snake) {
     const head = snake.getHead();

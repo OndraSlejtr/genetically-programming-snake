@@ -12,7 +12,7 @@ export function getRandomElement(array) {
 }
 
 export function coinflip() {
-    return getRand(2) === 1;
+    return Math.random() <= 0.5;
 }
 
 

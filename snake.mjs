@@ -45,7 +45,7 @@ function getTurnOption(turnId) {
 export function changeDirectionToRight(origDirection) {
     return (4 + origDirection + 1) % 4
 }
-export function changeDirectionToLeft(origDirection) {    
+export function changeDirectionToLeft(origDirection) {
     return (4 + origDirection - 1) % 4
 }
 
@@ -159,7 +159,7 @@ export class Game {
     constructor({
         visible,
         manualControl,
-        maxTurns = 1000,
+        maxTurns = 500,
         width = 10,
         height = 10,
         foodCount = 1
